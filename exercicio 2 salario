@@ -1,0 +1,16 @@
+# Função para calcular o aumento de salário
+def calcular_aumento(salario_atual, porcentagem_aumento):
+    valor_aumento = salario_atual * (porcentagem_aumento / 100)
+    novo_salario = salario_atual + valor_aumento
+    return valor_aumento, novo_salario
+
+# Entrada de dados
+salario = float(input("Informe o valor do salário atual (em R$): "))
+porcentagem = float(input("Informe a porcentagem de aumento (%): "))
+
+# Calcula o valor do aumento e o novo salário
+valor_aumento, novo_salario = calcular_aumento(salario, porcentagem)
+
+# Exibe os resultados
+print(f"Valor do aumento: R$ {valor_aumento:.2f}")
+print(f"Novo salário: R$ {novo_salario:.2f}")
