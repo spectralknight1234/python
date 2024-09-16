@@ -1,0 +1,19 @@
+# Função para calcular o consumo médio
+def calcular_consumo(distancia_percorrida, valor_combustivel, preco_combustivel):
+    if valor_combustivel > 0 and preco_combustivel > 0:
+        # Calcula a quantidade de litros de combustível consumidos
+        litros_consumidos = valor_combustivel / preco_combustivel
+        # Calcula o consumo médio (km/l)
+        consumo_medio = distancia_percorrida / litros_consumidos
+        return consumo_medio
+    else:
+        return "Valor do combustível ou preço inválido"
+
+# Entrada de dados
+distancia = float(input("Informe a distância percorrida (em km): "))
+valor_gasto = float(input("Informe o valor gasto em combustível (em R$): "))
+preco_combustivel = float(input("Informe o preço do combustível por litro (em R$): "))
+
+# Calcula e exibe o consumo médio
+consumo_medio = calcular_consumo(distancia, valor_gasto, preco_combustivel)
+print(f"O consumo médio do veículo é: {consumo_medio:.2f} km/l")
