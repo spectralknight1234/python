@@ -1,0 +1,11 @@
+ Função para converter Celsius para Fahrenheit
+def celsius_para_fahrenheit(celsius):
+    fahrenheit = (celsius * 9/5) + 32
+    return fahrenheit
+
+# Entrada de dados
+celsius = float(input("Digite a temperatura em Celsius: "))
+
+# Converte e exibe o resultado
+fahrenheit = celsius_para_fahrenheit(celsius)
+print(f"A temperatura em Fahrenheit é: {fahrenheit:.2f}°F")
