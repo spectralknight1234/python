@@ -1,0 +1,97 @@
+import pygame_sys
+
+class ball
+def_init_(self,screen,color,posiction x posiction y,radius)
+self.screen= screen
+self.color=color
+self.positionx=positionx
+self=positiony=positiony
+self.radius=radius
+self.directionx=0
+self.directiony=0
+
+
+self.show()
+
+
+def show(self):
+pygame.draw.circle(self.screen,self.color,(self.positionx,self.positiony),self.radius)
+
+def start_moving(self):
+    self.directionx=15
+    self.directiony=5
+
+    def move(self):
+        self.positionx+=self.positionx+self.directionx
+        self.positiony+=self.positiony+self. directiony
+
+
+
+
+class paddle
+def_init_(self,screen,color,positionX,positionY,WIDTH,HEIGHT):
+self.screen=screen
+self.color=color
+self.positionx=positionx
+self=positiony=positiony
+self.width=width
+self.height=HEIGHT
+self.state="stopped"
+
+def show(self)
+    pygame.draw.rect(self.screen,self.color,(self.positionx,self.positiony))
+def move(self)
+    if self.state =="up":
+        self.positiony-=10
+        elif self.state=="down"
+self.positiony+=10
+
+pygame.init()
+WIDTH=900
+HEIGHT=500
+#rgb_red,green,blue
+BLACK=(0,0,0)
+WHITE=(255,255,255)
+screen=pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption()
+
+def paint_back():
+screen.fill(BLACK)
+pygame.draw.line(screen,WHITE(WIDTH//2,0)(WIDTH//2,HEIGHT),5)
+paint_back()
+#objects
+ball=ball(screen,WHITE,WIDTH//2,HEIGHT//2, 15)
+paddle1=paddle(screen,WHITE,15,HEIGHT//2-60,20,120)
+paddle2=paddle(screen,WHITE,WIDTH-20-15,HEIGHT//2-60,20,120)
+#variables
+playing=False
+
+
+
+
+# mainloop
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            Sys.exit()
+            if event.type ==pygame.keydown
+            if event.key == pygame.k_p: 
+            ball start_moving()
+            playing=True
+            if event.key==pygame.k_w
+            paddle1.state="up"
+            if event.key==pygame.k_s
+            paddle1.state="down"
+
+            if event.key ==pygame.k_up
+            paddle2.state="up"
+            if event.key ==pygame.K_down
+        
+
+            if playing:
+                paint_back()
+
+            
+
+
+pygame.display.update
