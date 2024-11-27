@@ -1,19 +1,35 @@
 import tkinter as tk
 from tkinter import messagebox
-
-# Variáveis globais para armazenar as credenciais do usuário
-usuario_cadastrado = None
-senha_cadastrada = None
-
+import sqlite3
+def configurar_banco():
+    conexao = sqlite3.connect("usuarios.db")
+    cursor = conexao.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario TEXT NOT NULL UNIQUE,
+            senha TEXT NOT NULL,
+            acessos INTEGER DEFAULT 0
+        )
+    """)
+    conexao.commit()
+    conexao.close()
 def cadastrar_usuario():
     def salvar_cadastro():
-        global usuario_cadastrado, senha_cadastrada
-        usuario_cadastrado = entrada_usuario.get()
-        senha_cadastrada = entrada_senha.get()
+        usuario = entrada_usuario.get()
+        senha = entrada_senha.get()
         
-        if usuario_cadastrado and senha_cadastrada:
-            messagebox.showinfo("Sucesso", "Cadastro realizado com sucesso!")
-            janela_cadastro.destroy()
+        if usuario and senha:
+            try:
+                conexao = sqlite3.connect("usuarios.db")
+                cursor = conexao.cursor()
+                cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (?, ?)", (usuario, senha))
+                conexao.commit()
+                conexao.close()
+                messagebox.showinfo("Sucesso", "Cadastro realizado com sucesso!")
+                janela_cadastro.destroy()
+            except sqlite3.IntegrityError:
+                messagebox.showerror("Erro", "Usuário já existe. Escolha outro nome de usuário.")
         else:
             messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
     
@@ -30,19 +46,34 @@ def cadastrar_usuario():
     entrada_senha.pack(pady=5)
 
     tk.Button(janela_cadastro, text="Cadastrar", command=salvar_cadastro).pack(pady=10)
-
 def autenticar_usuario():
     def validar_login():
-        global usuario_cadastrado, senha_cadastrada
         usuario = entrada_usuario.get()
         senha = entrada_senha.get()
-        
-        if usuario == usuario_cadastrado and senha == senha_cadastrada:
-            messagebox.showinfo("Sucesso", "Login realizado com sucesso!")
-            janela_login.destroy()
-            calcular_pegada_carbono()
+        if usuario and senha:
+            conexao = sqlite3.connect("usuarios.db")
+            cursor = conexao.cursor()
+            cursor.execute("SELECT id, acessos FROM usuarios WHERE usuario = ? AND senha = ?", (usuario, senha))
+            resultado = cursor.fetchone()
+            
+            if resultado:
+                user_id, acessos = resultado
+                if acessos > 0:
+                    messagebox.showinfo("Bem-vindo de volta", f"Bem-vindo de volta, {usuario}!")
+                else:
+                    messagebox.showinfo("Sucesso", f"Login realizado com sucesso, {usuario}!")
+                
+                cursor.execute("UPDATE usuarios SET acessos = acessos + 1 WHERE id = ?", (user_id,))
+                conexao.commit()
+                conexao.close()
+                
+                janela_login.destroy()
+                calcular_pegada_carbono()
+            else:
+                messagebox.showerror("Erro", "Nome de usuário ou senha incorretos.")
+                conexao.close()
         else:
-            messagebox.showerror("Erro", "Nome de usuário ou senha incorretos.")
+            messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
     
     janela_login = tk.Toplevel()
     janela_login.title("Login")
@@ -57,9 +88,7 @@ def autenticar_usuario():
     entrada_senha.pack(pady=5)
 
     tk.Button(janela_login, text="Entrar", command=validar_login).pack(pady=10)
-
 def calcular_emissao(eletricidade, km_moto, gas, alimento, km_carro, onibus, aviao, barco):
-    # Fatores de emissão em kg CO₂ por unidade
     eleT = eletricidade * 0.1295
     kmMt = km_moto * 0.10106
     gT = gas * 0.18293
@@ -68,10 +97,8 @@ def calcular_emissao(eletricidade, km_moto, gas, alimento, km_carro, onibus, avi
     onibusT = onibus * 0.0928533
     aviaoT = aviao * 0.254
     barcoT = barco * 0.059
-    
     totalf = eleT + kmMt + gT + aliT + kmT + onibusT + aviaoT + barcoT
     return totalf
-
 def calcular_pegada_carbono():
     def calcular():
         try:
@@ -129,10 +156,9 @@ def calcular_pegada_carbono():
     entrada_onibus = entradas["onibus"]
     entrada_aviao = entradas["aviao"]
     entrada_barco = entradas["barco"]
-
     tk.Button(janela_calculo, text="Calcular", command=calcular).pack(pady=20)
-
 def iniciar_aplicacao():
+    configurar_banco()  # Configurar o banco de dados ao iniciar
     janela = tk.Tk()
     janela.title("Calculadora de Pegada de Carbono")
     janela.geometry("300x200")
@@ -142,7 +168,5 @@ def iniciar_aplicacao():
 
     janela.mainloop()
 
-# Início da aplicação
 if __name__ == "__main__":
     iniciar_aplicacao()
-
