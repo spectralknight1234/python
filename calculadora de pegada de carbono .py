@@ -158,7 +158,7 @@ def calcular_pegada_carbono():
     entrada_barco = entradas["barco"]
     tk.Button(janela_calculo, text="Calcular", command=calcular).pack(pady=20)
 def iniciar_aplicacao():
-    configurar_banco()  # Configurar o banco de dados ao iniciar
+    configurar_banco()
     janela = tk.Tk()
     janela.title("Calculadora de Pegada de Carbono")
     janela.geometry("300x200")
