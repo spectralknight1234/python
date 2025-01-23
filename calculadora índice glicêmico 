@@ -89,7 +89,7 @@
             <button type="submit">Calcular</button>
         </form>
         <div id="result"></div>
-        
+
         <div id="additional-questions">
             <h2>Informações adicionais:</h2>
             <form id="additional-data">
@@ -104,15 +104,12 @@
         </div>
 
         <div id="risk-calculation">
-            <h2>Calcule o seu risco de Diabetes e Hipertensão</h2>
+            <h2>Calcule o seu risco de Diabetes</h2>
             <form id="risk-form">
                 <label for="age">Idade:</label>
                 <input type="number" id="age" required>
-                <label for="bmi">IMC (Índice de Massa Corporal):</label>
-                <input type="number" id="bmi" required>
-                <label for="family-history">Histórico familiar de diabetes ou hipertensão (marque as opções):</label>
+                <label for="family-history">Histórico familiar de diabetes:</label>
                 <label><input type="checkbox" id="family-diabetes"> Diabetes</label>
-                <label><input type="checkbox" id="family-hypertension"> Hipertensão</label>
                 <button type="submit">Calcular Risco</button>
             </form>
             <div id="risk-result"></div>
@@ -162,16 +159,12 @@
         document.getElementById("risk-form").addEventListener("submit", function (e) {
             e.preventDefault();
             const age = parseInt(document.getElementById("age").value);
-            const bmi = parseFloat(document.getElementById("bmi").value);
             const familyDiabetes = document.getElementById("family-diabetes").checked;
-            const familyHypertension = document.getElementById("family-hypertension").checked;
 
-            let diabetesRisk = (age > 45 || bmi > 30 || familyDiabetes) ? "Alto" : "Baixo";
-            let hypertensionRisk = (age > 40 || bmi > 30 || familyHypertension) ? "Alto" : "Baixo";
+            let diabetesRisk = (age > 45 || familyDiabetes) ? "Alto" : "Baixo";
 
             document.getElementById("risk-result").innerHTML = `
                 <p>Risco de Diabetes: ${diabetesRisk}</p>
-                <p>Risco de Hipertensão: ${hypertensionRisk}</p>
             `;
         });
 
@@ -207,3 +200,4 @@
     </script>
 </body>
 </html>
+
