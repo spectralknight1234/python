@@ -1,9 +1,9 @@
-<!DOCTYPE html
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de IMC</title>
+    <title>Calculadora de IMC e Pressão Arterial</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <style>
         body {
@@ -28,6 +28,13 @@
             font-size: 1.1rem;
             padding: 10px 20px;
             font-weight: bold;
+            margin: 5px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-danger {
+            background-color: #dc3545;
         }
         .result {
             margin-top: 20px;
@@ -42,7 +49,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Calculadora de IMC</h1>
+    <h1>Calculadora de IMC e Pressão Arterial</h1>
     <form id="imcForm">
         <div id="step1">
             <div class="mb-3">
@@ -64,6 +71,10 @@
         </div>
         <div id="step3" style="display: none;">
             <div class="mb-3">
+                <label for="idade" class="form-label">Idade:</label>
+                <input type="number" id="idade" class="form-control" placeholder="Digite sua idade" required>
+            </div>
+            <div class="mb-3">
                 <label for="altura" class="form-label">Altura (em metros):</label>
                 <input type="number" step="0.01" id="altura" class="form-control" placeholder="Ex: 1.75" required>
             </div>
@@ -71,7 +82,8 @@
                 <label for="peso" class="form-label">Peso (em kg):</label>
                 <input type="number" step="0.1" id="peso" class="form-control" placeholder="Ex: 70.5" required>
             </div>
-            <button type="button" class="btn btn-success" onclick="calcularIMC()">Calcular IMC</button>
+            <button type="button" class="btn btn-primary" onclick="calcularIMC()">Calcular IMC</button>
+            <button type="button" class="btn btn-danger" onclick="calcularPressao()">Calcular Chance de Aumento de Pressão Arterial</button>
         </div>
     </form>
     <div id="resultado" class="result"></div>
@@ -136,6 +148,27 @@
 
         document.getElementById("resultado").innerHTML = `Seu IMC é <strong>${imc.toFixed(2)}</strong> (${categoria}).`;
         document.getElementById("dicas").innerHTML = `<strong>Dicas:</strong> ${dicas}`;
+    }
+
+    function calcularPressao() {
+        const idade = parseInt(document.getElementById("idade").value);
+        const peso = parseFloat(document.getElementById("peso").value);
+        const altura = parseFloat(document.getElementById("altura").value);
+
+        if (isNaN(idade) || isNaN(peso) || isNaN(altura)) {
+            alert("Por favor, insira todos os dados corretamente.");
+            return;
+        }
+
+        let risco = "Baixo";
+        if (idade > 40 && peso > 85) {
+            risco = "Alto";
+        } else if (idade > 30 && peso > 75) {
+            risco = "Moderado";
+        }
+
+        document.getElementById("resultado").innerHTML = `Chance de aumento de pressão arterial: <strong>${risco}</strong>.`;
+        document.getElementById("dicas").innerHTML = `<strong>Dicas:</strong> Controle o peso e faça exames periódicos.`;
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
