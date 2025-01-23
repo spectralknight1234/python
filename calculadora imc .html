@@ -47,7 +47,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="exibirBoasVindas()">
 <div class="container">
     <h1>Calculadora de IMC e Pressão Arterial</h1>
     <form id="imcForm">
@@ -91,6 +91,10 @@
 </div>
 
 <script>
+    function exibirBoasVindas() {
+        alert("Bem-vindo(a) à Calculadora de IMC e Pressão Arterial! Preencha os dados e aproveite.");
+    }
+
     let codigoEnviado = "";
 
     function enviarCodigo() {
