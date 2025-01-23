@@ -1,204 +1,154 @@
-import tkinter as tk
-from tkinter import messagebox
-import sqlite3
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Pegada de Carbono</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">Calculadora de Pegada de Carbono</h1>
+    <div class="d-flex flex-column align-items-center mt-4">
+        <button class="btn btn-primary mb-3" onclick="abrirCadastro()">Cadastrar Usuário</button>
+        <button class="btn btn-success mb-3" onclick="abrirLogin()">Login</button>
+        <button class="btn btn-info mb-3" onclick="mostrarIdeias()">Ideias para Reduzir Pegada de Carbono</button>
+    </div>
+</div>
 
-def configurar_banco():
-    conexao = sqlite3.connect("usuarios.db")
-    cursor = conexao.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            usuario TEXT NOT NULL UNIQUE,
-            senha TEXT NOT NULL,
-            acessos INTEGER DEFAULT 0
-        )
-    """)
-    conexao.commit()
-    conexao.close()
+<!-- Modais -->
+<div class="modal" id="modalCadastro" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cadastro de Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="cadastroUsuario" class="form-control mb-3" placeholder="Nome de Usuário">
+                <input type="password" id="cadastroSenha" class="form-control mb-3" placeholder="Senha">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="cadastrarUsuario()">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-def cadastrar_usuario():
-    def salvar_cadastro():
-        usuario = entrada_usuario.get()
-        senha = entrada_senha.get()
-        if usuario and senha:
-            try:
-                conexao = sqlite3.connect("usuarios.db")
-                cursor = conexao.cursor()
-                cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (?, ?)", (usuario, senha))
-                conexao.commit()
-                conexao.close()
-                messagebox.showinfo("Sucesso", "Cadastro realizado com sucesso!")
-                janela_cadastro.destroy()
-            except sqlite3.IntegrityError:
-                messagebox.showerror("Erro", "Usuário já existe. Escolha outro nome de usuário.")
-        else:
-            messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
-    
-    janela_cadastro = tk.Toplevel()
-    janela_cadastro.title("Cadastro de Usuário")
-    janela_cadastro.geometry("300x200")
+<div class="modal" id="modalLogin" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="loginUsuario" class="form-control mb-3" placeholder="Nome de Usuário">
+                <input type="password" id="loginSenha" class="form-control mb-3" placeholder="Senha">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="loginUsuario()">Entrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    tk.Label(janela_cadastro, text="Nome de Usuário:").pack(pady=5)
-    entrada_usuario = tk.Entry(janela_cadastro)
-    entrada_usuario.pack(pady=5)
+<div class="modal" id="modalIdeias" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ideias para Reduzir a Pegada de Carbono</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li>Utilize lâmpadas de LED em casa para economizar energia.</li>
+                    <li>Ande de bicicleta ou caminhe para trajetos curtos.</li>
+                    <li>Consuma alimentos locais e de produtores orgânicos.</li>
+                    <li>Reduza o uso de embalagens plásticas descartáveis.</li>
+                    <li>Evite o desperdício de água e energia.</li>
+                    <li>Planeje viagens para reduzir o uso de transporte aéreo.</li>
+                    <li>Adote práticas de reciclagem e compostagem.</li>
+                    <li>Participe de programas de reflorestamento.</li>
+                    <li>Incentive o uso de energia renovável, como solar e eólica.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-    tk.Label(janela_cadastro, text="Senha:").pack(pady=5)
-    entrada_senha = tk.Entry(janela_cadastro, show="*")
-    entrada_senha.pack(pady=5)
+<script>
+    const dbPromise = indexedDB.open("usuariosDB", 1);
 
-    tk.Button(janela_cadastro, text="Cadastrar", command=salvar_cadastro).pack(pady=10)
+    dbPromise.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains("usuarios")) {
+            db.createObjectStore("usuarios", { keyPath: "id", autoIncrement: true });
+        }
+    };
 
-def autenticar_usuario():
-    def validar_login():
-        usuario = entrada_usuario.get()
-        senha = entrada_senha.get()
-        if usuario and senha:
-            conexao = sqlite3.connect("usuarios.db")
-            cursor = conexao.cursor()
-            cursor.execute("SELECT id, acessos FROM usuarios WHERE usuario = ? AND senha = ?", (usuario, senha))
-            resultado = cursor.fetchone()
-            if resultado:
-                user_id, acessos = resultado
-                if acessos > 0:
-                    messagebox.showinfo("Bem-vindo de volta", f"Bem-vindo de volta, {usuario}!")
-                else:
-                    messagebox.showinfo("Sucesso", f"Login realizado com sucesso, {usuario}!")
-                cursor.execute("UPDATE usuarios SET acessos = acessos + 1 WHERE id = ?", (user_id,))
-                conexao.commit()
-                conexao.close()
-                janela_login.destroy()
-                calcular_pegada_carbono()
-            else:
-                messagebox.showerror("Erro", "Nome de usuário ou senha incorretos.")
-                conexao.close()
-        else:
-            messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
-    
-    janela_login = tk.Toplevel()
-    janela_login.title("Login")
-    janela_login.geometry("300x200")
+    function abrirCadastro() {
+        const modal = new bootstrap.Modal(document.getElementById('modalCadastro'));
+        modal.show();
+    }
 
-    tk.Label(janela_login, text="Nome de Usuário:").pack(pady=5)
-    entrada_usuario = tk.Entry(janela_login)
-    entrada_usuario.pack(pady=5)
+    function cadastrarUsuario() {
+        const usuario = document.getElementById("cadastroUsuario").value;
+        const senha = document.getElementById("cadastroSenha").value;
 
-    tk.Label(janela_login, text="Senha:").pack(pady=5)
-    entrada_senha = tk.Entry(janela_login, show="*")
-    entrada_senha.pack(pady=5)
+        if (usuario && senha) {
+            const transaction = dbPromise.result.transaction("usuarios", "readwrite");
+            const store = transaction.objectStore("usuarios");
+            const request = store.add({ usuario, senha });
 
-    tk.Button(janela_login, text="Entrar", command=validar_login).pack(pady=10)
+            request.onsuccess = () => {
+                alert("Cadastro realizado com sucesso!");
+            };
 
-def calcular_emissao(eletricidade, km_moto, gas, alimento, km_carro, onibus, aviao, barco):
-    eleT = eletricidade * 0.1295
-    kmMt = km_moto * 0.10106
-    gT = gas * 0.18293
-    aliT = alimento * 0.10174829
-    kmT = km_carro * 0.17246
-    onibusT = onibus * 0.0928533
-    aviaoT = aviao * 0.254
-    barcoT = barco * 0.059
-    totalf = eleT + kmMt + gT + aliT + kmT + onibusT + aviaoT + barcoT
-    return totalf
+            request.onerror = () => {
+                alert("Erro: Usuário já existe!");
+            };
+        } else {
+            alert("Por favor, preencha todos os campos.");
+        }
+    }
 
-def calcular_pegada_carbono():
-    def calcular():
-        try:
-            familia = int(entrada_familia.get())
-            eletricidade = float(entrada_eletricidade.get())
-            km_moto = float(entrada_km_moto.get())
-            gas = float(entrada_gas.get())
-            alimento = float(entrada_alimento.get())
-            km_carro = float(entrada_km_carro.get())
-            onibus = float(entrada_onibus.get())
-            aviao = float(entrada_aviao.get())
-            barco = float(entrada_barco.get())
-            totalf = calcular_emissao(eletricidade, km_moto, gas, alimento, km_carro, onibus, aviao, barco)
-            totali = totalf / familia if familia > 0 else totalf
-            messagebox.showinfo(
-                "Resultados",
-                f"Pegada de carbono total: {totalf:.2f} kg de CO₂/mês\n"
-                f"Pegada individual: {totali:.2f} kg de CO₂/mês"
-            )
-        except ValueError:
-            messagebox.showerror("Erro", "Por favor, insira valores válidos.")
-    
-    janela_calculo = tk.Toplevel()
-    janela_calculo.title("Cálculo de Pegada de Carbono")
-    janela_calculo.geometry("400x600")
+    function abrirLogin() {
+        const modal = new bootstrap.Modal(document.getElementById('modalLogin'));
+        modal.show();
+    }
 
-    campos = [
-        ("Quantas pessoas moram com você?", "familia"),
-        ("Energia gasta por mês (kWh):", "eletricidade"),
-        ("KM dirigidos de moto por mês:", "km_moto"),
-        ("Gás natural usado (kg de CO₂):", "gas"),
-        ("Gasto com alimentos (R$):", "alimento"),
-        ("KM dirigidos de carro por mês:", "km_carro"),
-        ("KM de transporte público por mês:", "onibus"),
-        ("KM viajados de avião por mês:", "aviao"),
-        ("KM viajados de barco por mês:", "barco")
-    ]
+    function loginUsuario() {
+        const usuario = document.getElementById("loginUsuario").value;
+        const senha = document.getElementById("loginSenha").value;
 
-    entradas = {}
+        if (usuario && senha) {
+            const transaction = dbPromise.result.transaction("usuarios", "readonly");
+            const store = transaction.objectStore("usuarios");
+            const request = store.openCursor();
 
-    for texto, chave in campos:
-        tk.Label(janela_calculo, text=texto).pack(pady=5)
-        entrada = tk.Entry(janela_calculo)
-        entrada.pack(pady=5)
-        entradas[chave] = entrada
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    if (cursor.value.usuario === usuario && cursor.value.senha === senha) {
+                        alert(`Bem-vindo, ${usuario}!`);
+                        return;
+                    }
+                    cursor.continue();
+                } else {
+                    alert("Usuário ou senha incorretos.");
+                }
+            };
+        } else {
+            alert("Por favor, preencha todos os campos.");
+        }
+    }
 
-    entrada_familia = entradas["familia"]
-    entrada_eletricidade = entradas["eletricidade"]
-    entrada_km_moto = entradas["km_moto"]
-    entrada_gas = entradas["gas"]
-    entrada_alimento = entradas["alimento"]
-    entrada_km_carro = entradas["km_carro"]
-    entrada_onibus = entradas["onibus"]
-    entrada_aviao = entradas["aviao"]
-    entrada_barco = entradas["barco"]
-    tk.Button(janela_calculo, text="Calcular", command=calcular).pack(pady=20)
+    function mostrarIdeias() {
+        const modal = new bootstrap.Modal(document.getElementById('modalIdeias'));
+        modal.show();
+    }
+</script>
 
-def mostrar_ideias():
-    janela_ideias = tk.Toplevel()
-    janela_ideias.title("Ideias para Reduzir Pegada de Carbono")
-    janela_ideias.geometry("400x400")
-
-    ideias = [
-        "- Utilize lâmpadas de LED em casa para economizar energia.",
-        "- Ande de bicicleta ou caminhe para trajetos curtos.",
-        "- Consuma alimentos locais e de produtores orgânicos.",
-        "- Reduza o uso de embalagens plásticas descartáveis.",
-        "- Evite o desperdício de água e energia.",
-        "- Planeje viagens para reduzir o uso de transporte aéreo.",
-        "- Adote práticas de reciclagem e compostagem.",
-        "- Participe de programas de reflorestamento.",
-        "- Incentive o uso de energia renovável, como solar e eólica."
-    ]
-
-    beneficios = (
-        "Benefícios para a sociedade:\n"
-        "- Redução de emissões de gases de efeito estufa.\n"
-        "- Melhoria da qualidade do ar e saúde pública.\n"
-        "- Preservação de recursos naturais para as futuras gerações.\n"
-        "- Fomento a economias locais e práticas sustentáveis."
-    )
-
-    tk.Label(janela_ideias, text="Ideias para Reduzir a Pegada de Carbono", font=("Arial", 14, "bold")).pack(pady=10)
-    for ideia in ideias:
-        tk.Label(janela_ideias, text=ideia, wraplength=380, justify="left").pack(anchor="w", padx=10, pady=2)
-    tk.Label(janela_ideias, text="\n" + beneficios, wraplength=380, justify="left", fg="green").pack(pady=10)
-
-def iniciar_aplicacao():
-    configurar_banco()
-    janela = tk.Tk()
-    janela.title("Calculadora de Pegada de Carbono")
-    janela.geometry("300x300")
-
-    tk.Button(janela, text="Cadastrar Usuário", command=cadastrar_usuario).pack(pady=10)
-    tk.Button(janela, text="Login", command=autenticar_usuario).pack(pady=10)
-    tk.Button(janela, text="Ideias para Reduzir Pegada de Carbono", command=mostrar_ideias).pack(pady=10)
-
-    janela.mainloop()
-
-if __name__ == "__main__":
-    iniciar_aplicacao()
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
