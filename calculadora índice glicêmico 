@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Índice Glicêmico e Risco de Doenças</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin: 20px 0;
+            padding: 10px;
+            background: #e7f4e4;
+            color: #2d7d46;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+        }
+        #risk-result {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+        }
+        .two-factor {
+            margin-top: 40px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Índice Glicêmico e Risco de Doenças</h1>
+        <form id="gi-calculator">
+            <label for="carbohydrates">Carboidratos (g):</label>
+            <input type="number" id="carbohydrates" required>
+            <label for="glycemic-index">Índice Glicêmico do alimento:</label>
+            <input type="number" id="glycemic-index" required>
+            <label for="portion-size">Tamanho da porção (g):</label>
+            <input type="number" id="portion-size" required>
+            <button type="submit">Calcular</button>
+        </form>
+        <div id="result"></div>
+        
+        <div id="additional-questions">
+            <h2>Informações adicionais:</h2>
+            <form id="additional-data">
+                <label for="monthly-carbs">Quanto de carboidratos você consome por mês (g)?</label>
+                <input type="number" id="monthly-carbs" required>
+                <label for="monthly-sugar">Quanto de açúcar você consome por mês (g)?</label>
+                <input type="number" id="monthly-sugar" required>
+                <label for="monthly-sodium">Quanto de sódio você consome por mês (mg)?</label>
+                <input type="number" id="monthly-sodium" required>
+                <button type="submit">Enviar Dados</button>
+            </form>
+        </div>
+
+        <div id="risk-calculation">
+            <h2>Calcule o seu risco de Diabetes e Hipertensão</h2>
+            <form id="risk-form">
+                <label for="age">Idade:</label>
+                <input type="number" id="age" required>
+                <label for="bmi">IMC (Índice de Massa Corporal):</label>
+                <input type="number" id="bmi" required>
+                <label for="family-history">Histórico familiar de diabetes ou hipertensão (marque as opções):</label>
+                <label><input type="checkbox" id="family-diabetes"> Diabetes</label>
+                <label><input type="checkbox" id="family-hypertension"> Hipertensão</label>
+                <button type="submit">Calcular Risco</button>
+            </form>
+            <div id="risk-result"></div>
+        </div>
+
+        <div id="tips">
+            <h2>Dicas para manter o índice equilibrado:</h2>
+            <ul>
+                <li>Consuma alimentos com baixo índice glicêmico, como aveia, lentilhas e maçãs.</li>
+                <li>Inclua proteínas e fibras nas refeições.</li>
+                <li>Evite alimentos processados e açúcares refinados.</li>
+                <li>Pratique exercícios físicos regularmente.</li>
+            </ul>
+        </div>
+
+        <div class="two-factor">
+            <h2>Verificação em Dois Fatores</h2>
+            <form id="verify-2fa">
+                <label for="phone">Número de telefone:</label>
+                <input type="text" id="phone" required>
+                <button type="button" id="send-code">Enviar código</button>
+                <label for="verification-code">Código recebido:</label>
+                <input type="text" id="verification-code" required>
+                <button type="submit">Verificar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("gi-calculator").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const carbs = parseFloat(document.getElementById("carbohydrates").value);
+            const gi = parseFloat(document.getElementById("glycemic-index").value);
+            const portion = parseFloat(document.getElementById("portion-size").value);
+            const glycemicLoad = ((carbs * gi) / 100) * (portion / 100);
+            document.getElementById("result").textContent = `A carga glicêmica do alimento é: ${glycemicLoad.toFixed(2)}`;
+        });
+
+        document.getElementById("additional-data").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const monthlyCarbs = parseFloat(document.getElementById("monthly-carbs").value);
+            const monthlySugar = parseFloat(document.getElementById("monthly-sugar").value);
+            const monthlySodium = parseFloat(document.getElementById("monthly-sodium").value);
+            alert(`Você consome aproximadamente ${monthlyCarbs}g de carboidratos, ${monthlySugar}g de açúcar e ${monthlySodium}mg de sódio por mês.`);
+        });
+
+        document.getElementById("risk-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const age = parseInt(document.getElementById("age").value);
+            const bmi = parseFloat(document.getElementById("bmi").value);
+            const familyDiabetes = document.getElementById("family-diabetes").checked;
+            const familyHypertension = document.getElementById("family-hypertension").checked;
+
+            let diabetesRisk = (age > 45 || bmi > 30 || familyDiabetes) ? "Alto" : "Baixo";
+            let hypertensionRisk = (age > 40 || bmi > 30 || familyHypertension) ? "Alto" : "Baixo";
+
+            document.getElementById("risk-result").innerHTML = `
+                <p>Risco de Diabetes: ${diabetesRisk}</p>
+                <p>Risco de Hipertensão: ${hypertensionRisk}</p>
+            `;
+        });
+
+        document.getElementById("send-code").addEventListener("click", function () {
+            const phone = document.getElementById("phone").value;
+            if (!phone) return alert("Por favor, insira um número de telefone válido.");
+            fetch("/send-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) alert("Código enviado!");
+                    else alert("Erro ao enviar o código.");
+                });
+        });
+
+        document.getElementById("verify-2fa").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const code = document.getElementById("verification-code").value;
+            fetch("/verify-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) alert("Verificação concluída!");
+                    else alert("Código inválido.");
+                });
+        });
+    </script>
+</body>
+</html>
