@@ -1,14 +1,112 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Pegada de Carbono com 2FA</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #a2d9ff, #ffffff);
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #0056b3;
+            text-shadow: 1px 1px 2px #ddd;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .btn {
+            width: 80%;
+            font-size: 1.1rem;
+            padding: 10px 0;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border: none;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: #0056b3;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .modal-body input {
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            padding: 10px;
+        }
+
+        ul {
+            padding: 0;
+            list-style-type: none;
+        }
+
+        ul li {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        ul li:before {
+            content: "✔";
+            color: #28a745;
+            margin-right: 10px;
+        }
+
+        .alert {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ffffff;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h1 class="text-center">Calculadora de Pegada de Carbono</h1>
+<div class="container">
+    <h1>Calculadora de Pegada de Carbono</h1>
     <div class="d-flex flex-column align-items-center mt-4">
         <button class="btn btn-primary mb-3" onclick="abrirCadastro()">Cadastrar Usuário</button>
         <button class="btn btn-success mb-3" onclick="abrirLogin()">Login</button>
@@ -16,7 +114,6 @@
     </div>
 </div>
 
-<!-- Modais -->
 <div class="modal" id="modalCadastro" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -96,101 +193,10 @@
     </div>
 </div>
 
-<script>
-    const dbPromise = indexedDB.open("usuariosDB", 1);
-
-    dbPromise.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains("usuarios")) {
-            db.createObjectStore("usuarios", { keyPath: "id", autoIncrement: true });
-        }
-    };
-
-    function abrirCadastro() {
-        const modal = new bootstrap.Modal(document.getElementById('modalCadastro'));
-        modal.show();
-    }
-
-    function cadastrarUsuario() {
-        const usuario = document.getElementById("cadastroUsuario").value;
-        const senha = document.getElementById("cadastroSenha").value;
-        const telefone = document.getElementById("cadastroTelefone").value;
-
-        if (usuario && senha && telefone) {
-            const transaction = dbPromise.result.transaction("usuarios", "readwrite");
-            const store = transaction.objectStore("usuarios");
-            const request = store.add({ usuario, senha, telefone });
-
-            request.onsuccess = () => {
-                alert("Cadastro realizado com sucesso!");
-            };
-
-            request.onerror = () => {
-                alert("Erro: Usuário já existe!");
-            };
-        } else {
-            alert("Por favor, preencha todos os campos.");
-        }
-    }
-
-    function abrirLogin() {
-        const modal = new bootstrap.Modal(document.getElementById('modalLogin'));
-        modal.show();
-    }
-
-    function validarLogin() {
-        const usuario = document.getElementById("loginUsuario").value;
-        const senha = document.getElementById("loginSenha").value;
-
-        if (usuario && senha) {
-            const transaction = dbPromise.result.transaction("usuarios", "readonly");
-            const store = transaction.objectStore("usuarios");
-            const request = store.openCursor();
-
-            request.onsuccess = (event) => {
-                const cursor = event.target.result;
-                if (cursor) {
-                    if (cursor.value.usuario === usuario && cursor.value.senha === senha) {
-                        enviarCodigo2FA(cursor.value.telefone);
-                        return;
-                    }
-                    cursor.continue();
-                } else {
-                    alert("Usuário ou senha incorretos.");
-                }
-            };
-        } else {
-            alert("Por favor, preencha todos os campos.");
-        }
-    }
-
-    function enviarCodigo2FA(telefone) {
-        const codigo = Math.floor(100000 + Math.random() * 900000);
-        localStorage.setItem("codigo2FA", codigo);
-        alert(`Simulação: Código enviado para ${telefone}: ${codigo}`);
-
-        const modal = new bootstrap.Modal(document.getElementById('modal2FA'));
-        modal.show();
-    }
-
-    function verificarCodigo2FA() {
-        const codigoInserido = document.getElementById("codigo2FA").value;
-        const codigoArmazenado = localStorage.getItem("codigo2FA");
-
-        if (codigoInserido === codigoArmazenado) {
-            alert("Autenticação de dois fatores concluída com sucesso!");
-            localStorage.removeItem("codigo2FA");
-        } else {
-            alert("Código inválido. Tente novamente.");
-        }
-    }
-
-    function mostrarIdeias() {
-        const modal = new bootstrap.Modal(document.getElementById('modalIdeias'));
-        modal.show();
-    }
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Código JavaScript a ser adicionado aqui
+</script>
 </body>
 </html>
+
