@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,6 +29,10 @@
             padding: 10px 20px;
             font-weight: bold;
             margin: 5px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: scale(1.1);
         }
         .btn-primary {
             background-color: #007bff;
@@ -47,7 +51,7 @@
         }
     </style>
 </head>
-<body onload="exibirBoasVindas()">
+<body onload="exibirOpcoes()">
 <div class="container">
     <h1>Calculadora de IMC e Pressão Arterial</h1>
     <form id="imcForm">
@@ -91,8 +95,14 @@
 </div>
 
 <script>
-    function exibirBoasVindas() {
-        alert("Bem-vindo(a) à Calculadora de IMC e Pressão Arterial! Preencha os dados e aproveite.");
+    function exibirOpcoes() {
+        const escolha = confirm("Olá! O que gostaria de calcular hoje?\n\nClique em 'OK' para calcular o IMC ou 'Cancelar' para calcular a Chance de Aumento de Pressão Arterial.");
+
+        if (escolha) {
+            alert("Você escolheu calcular o IMC. Preencha os dados necessários.");
+        } else {
+            alert("Você escolheu calcular a Chance de Aumento de Pressão Arterial. Preencha os dados necessários.");
+        }
     }
 
     let codigoEnviado = "";
