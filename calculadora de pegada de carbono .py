@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+!DOCTYPE html>
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Pegada de Carbono com 2FA</title>
+    <title>Calculadora de Pegada de Carbono</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background: linear-gradient(to bottom, #a2d9ff, #ffffff);
@@ -22,7 +24,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 50px auto;
             text-align: center;
             padding: 20px;
@@ -44,18 +46,9 @@
             border: none;
         }
 
-        .btn-success {
-            background-color: #28a745;
+        .btn-warning {
+            background-color: #ff9800;
             border: none;
-        }
-
-        .btn-info {
-            background-color: #17a2b8;
-            border: none;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
         }
 
         .modal-title {
@@ -67,135 +60,134 @@
             border-radius: 15px;
         }
 
-        .modal-body input {
-            border: 1px solid #ccc;
-            border-radius: 20px;
+        .dicas {
+            margin-top: 20px;
+        }
+
+        .dica {
             padding: 10px;
-        }
-
-        ul {
-            padding: 0;
-            list-style-type: none;
-        }
-
-        ul li {
-            text-align: left;
-            margin-bottom: 10px;
-        }
-
-        ul li:before {
-            content: "✔";
-            color: #28a745;
-            margin-right: 10px;
-        }
-
-        .alert {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #ffffff;
-            background: #ff6b6b;
-            border: none;
+            margin: 5px;
             border-radius: 10px;
+            font-weight: bold;
         }
 
-        .btn-close {
-            background: transparent;
-            border: none;
+        .dica:nth-child(odd) {
+            background-color: #ffcc80;
+        }
+
+        .dica:nth-child(even) {
+            background-color: #81c784;
+        }
+
+        .grafico-container {
+            margin-top: 30px;
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h1>Calculadora de Pegada de Carbono</h1>
-    <div class="d-flex flex-column align-items-center mt-4">
-        <button class="btn btn-primary mb-3" onclick="abrirCadastro()">Cadastrar Usuário</button>
-        <button class="btn btn-success mb-3" onclick="abrirLogin()">Login</button>
-        <button class="btn btn-info mb-3" onclick="mostrarIdeias()">Ideias para Reduzir Pegada de Carbono</button>
-    </div>
-</div>
+    <div class="container">
+        <h1>Calculadora de Pegada de Carbono</h1>
 
-<div class="modal" id="modalCadastro" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cadastro de Usuário</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="cadastroUsuario" class="form-control mb-3" placeholder="Nome de Usuário">
-                <input type="password" id="cadastroSenha" class="form-control mb-3" placeholder="Senha">
-                <input type="text" id="cadastroTelefone" class="form-control mb-3" placeholder="Número de Telefone (ex: +5591999999999)">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="cadastrarUsuario()">Cadastrar</button>
+        <div class="text-start mt-4">
+            <h3>O que é a Pegada de Carbono?</h3>
+            <p>A pegada de carbono representa a quantidade total de gases do efeito estufa (principalmente CO₂) emitidos direta ou indiretamente por nossas atividades diárias, como o consumo de energia, transporte e hábitos de consumo.</p>
+        </div>
+
+        <div class="d-flex flex-column align-items-center mt-4">
+            <button class="btn btn-warning mb-3" onclick="abrirCalculadora()">Calcular Pegada de Carbono</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modalCalculo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Calcular Pegada de Carbono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="number" id="luz" class="form-control mb-3" placeholder="Consumo de eletricidade (kWh)">
+                    <input type="number" id="carro" class="form-control mb-3" placeholder="Km rodados de carro/mês">
+                    <input type="number" id="aviao" class="form-control mb-3" placeholder="Km voados de avião/mês">
+                    <input type="number" id="barco" class="form-control mb-3" placeholder="Km percorridos de barco/mês">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="calcularPegada()">Calcular</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal" id="modalLogin" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Login</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="loginUsuario" class="form-control mb-3" placeholder="Nome de Usuário">
-                <input type="password" id="loginSenha" class="form-control mb-3" placeholder="Senha">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" onclick="validarLogin()">Entrar</button>
-            </div>
-        </div>
+    <div class="container grafico-container" id="graficoContainer" style="display: none;">
+        <h3>Impacto da Sua Pegada de Carbono</h3>
+        <canvas id="graficoPegada"></canvas>
     </div>
-</div>
 
-<div class="modal" id="modal2FA" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Autenticação de Dois Fatores</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Um código de verificação foi enviado para o seu número de telefone.</p>
-                <input type="text" id="codigo2FA" class="form-control mb-3" placeholder="Digite o código recebido">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="verificarCodigo2FA()">Verificar</button>
-            </div>
-        </div>
+    <div class="container dicas" id="dicasContainer" style="display: none;">
+        <h3>Dicas para Reduzir sua Pegada de Carbono</h3>
+        <div id="dicas"></div>
     </div>
-</div>
 
-<div class="modal" id="modalIdeias" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ideias para Reduzir a Pegada de Carbono</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <ul>
-                    <li>Utilize lâmpadas de LED em casa para economizar energia.</li>
-                    <li>Ande de bicicleta ou caminhe para trajetos curtos.</li>
-                    <li>Consuma alimentos locais e de produtores orgânicos.</li>
-                    <li>Reduza o uso de embalagens plásticas descartáveis.</li>
-                    <li>Evite o desperdício de água e energia.</li>
-                    <li>Planeje viagens para reduzir o uso de transporte aéreo.</li>
-                    <li>Adote práticas de reciclagem e compostagem.</li>
-                    <li>Participe de programas de reflorestamento.</li>
-                    <li>Incentive o uso de energia renovável, como solar e eólica.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function abrirCalculadora() {
+            new bootstrap.Modal(document.getElementById('modalCalculo')).show();
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-</script>
+        function calcularPegada() {
+            let luz = parseFloat(document.getElementById("luz").value) || 0;
+            let carro = parseFloat(document.getElementById("carro").value) || 0;
+            let aviao = parseFloat(document.getElementById("aviao").value) || 0;
+            let barco = parseFloat(document.getElementById("barco").value) || 0;
+
+            let pegada = (luz * 0.5) + (carro * 0.21) + (aviao * 0.2) + (barco * 0.12);
+            alert("Sua pegada de carbono mensal estimada é de " + pegada.toFixed(2) + " kg de CO₂.");
+
+            mostrarDicas();
+            gerarGrafico(luz, carro, aviao, barco);
+        }
+
+        function mostrarDicas() {
+            let dicas = [
+                "Use lâmpadas de LED para economizar energia.",
+                "Reduza o consumo de carne, especialmente bovina.",
+                "Opte por transportes públicos, bicicleta ou caminhar mais.",
+                "Evite o desperdício de água e energia.",
+                "Utilize sacolas reutilizáveis ao fazer compras.",
+                "Plante árvores para compensar suas emissões.",
+                "Reduza o uso de plásticos descartáveis.",
+                "Recicle seus resíduos corretamente.",
+                "Escolha produtos sustentáveis e de empresas responsáveis.",
+                "Apoie e incentive o uso de energia renovável."
+            ];
+
+            let dicasContainer = document.getElementById("dicas");
+            dicasContainer.innerHTML = "";
+            dicas.forEach(dica => {
+                let div = document.createElement("div");
+                div.classList.add("dica");
+                div.innerText = dica;
+                dicasContainer.appendChild(div);
+            });
+
+            document.getElementById("dicasContainer").style.display = "block";
+        }
+
+        function gerarGrafico(luz, carro, aviao, barco) {
+            document.getElementById("graficoContainer").style.display = "block";
+            let ctx = document.getElementById("graficoPegada").getContext("2d");
+
+            new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: ["Eletricidade", "Carro", "Avião", "Barco"],
+                    datasets: [{
+                        data: [luz, carro, aviao, barco],
+                        backgroundColor: ["#ffcc80", "#81c784", "#64b5f6", "#ff8a65"]
+                    }]
+                }
+            });
+        }
+    </script>
 </body>
-</html>
-.
